@@ -1,6 +1,7 @@
 package net.yaya.modzero;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -12,20 +13,23 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.yaya.modzero.item.ModCreativeModTabs;
+import net.yaya.modzero.item.ModItems;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(net.yaya.modzero.ModZero.MODID)
-public class ModZero
-{
-    // Define mod id in a common place for everything to reference
-    public static final String MODID = "modzero";
-    // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+public class ModZero {
+    public static final String MODID = "modzero"; // Define mod id in a common place for everything to reference
+    private static final Logger LOGGER = LogUtils.getLogger(); // Directly reference a slf4j logger
 
     public ModZero(FMLJavaModLoadingContext context)
     {
         IEventBus modEventBus = context.getModEventBus();
+
+        ModCreativeModTabs.register(modEventBus);
+
+        ModItems.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -35,9 +39,6 @@ public class ModZero
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
-
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -46,6 +47,10 @@ public class ModZero
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.VIBRANIUM);
+            event.accept(ModItems.RAW_VIBRANIUM);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
